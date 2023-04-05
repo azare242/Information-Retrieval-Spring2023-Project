@@ -29,16 +29,28 @@ class data_set:
         return self.stem(tokens)
 
     def stem(self, tokens):
-        final_stems = {}
+        stems = {}
         for doc_id, token_list in zip(tokens.keys(), tokens.values()):
             stem_temp = []
             for x in token_list:
                 stem_temp.append(
                     self.pre_processor.stemmer.stem(x)
                 )
-            final_stems[doc_id] = stem_temp
+            stems[doc_id] = stem_temp
 
-        return final_stems
+        return self.lemmatize(stems)
+
+    def lemmatize(self, stems):
+        lemmatizes = {}
+        for doc_id, stem_list in zip(stems.keys(), stems.values()):
+            lemmatize_temp = []
+            for x in stem_list:
+                lemmatize_temp.append(
+                    self.pre_processor.lemmatizer.lemmatize(x)
+                )
+            lemmatizes[doc_id] = lemmatize_temp
+        return lemmatizes
+
 
     def print_data_set(self):
         for doc in self.docs:
