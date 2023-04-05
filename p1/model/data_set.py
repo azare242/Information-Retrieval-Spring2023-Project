@@ -45,9 +45,11 @@ class data_set:
         for doc_id, stem_list in zip(stems.keys(), stems.values()):
             lemmatize_temp = []
             for x in stem_list:
-                lemmatize_temp.append(
-                    self.pre_processor.lemmatizer.lemmatize(x)
-                )
+                temp_lemmatized = self.pre_processor.lemmatizer.lemmatize(x)
+                if not self.pre_processor.is_stopword(temp_lemmatized):
+                    lemmatize_temp.append(
+                        self.pre_processor.lemmatizer.lemmatize(x)
+                    )
             lemmatizes[doc_id] = lemmatize_temp
         return lemmatizes
 

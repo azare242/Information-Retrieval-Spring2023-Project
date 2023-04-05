@@ -7,3 +7,7 @@ class pre_processor:
         self.normalizer = Normalizer()
         self.stemmer = Stemmer()
         self.lemmatizer = Lemmatizer()
+        self.stop_words = stopwords_list()
+
+    def is_stopword(self, word):
+        return word in self.stop_words
