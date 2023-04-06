@@ -33,9 +33,11 @@ class data_set:
         for doc_id, token_list in zip(tokens.keys(), tokens.values()):
             stem_temp = []
             for x in token_list:
-                stem_temp.append(
-                    self.pre_processor.stemmer.stem(x)
-                )
+                temp_stemmed = self.pre_processor.stemmer.stem(x)
+                if not self.pre_processor.is_stopword(temp_stemmed):
+                    stem_temp.append(
+                        temp_stemmed
+                    )
             stems[doc_id] = stem_temp
 
         return self.lemmatize(stems)
@@ -45,11 +47,9 @@ class data_set:
         for doc_id, stem_list in zip(stems.keys(), stems.values()):
             lemmatize_temp = []
             for x in stem_list:
-                temp_lemmatized = self.pre_processor.lemmatizer.lemmatize(x)
-                if not self.pre_processor.is_stopword(temp_lemmatized):
-                    lemmatize_temp.append(
-                        self.pre_processor.lemmatizer.lemmatize(x)
-                    )
+                lemmatize_temp.append(
+                    self.pre_processor.lemmatizer.lemmatize(x)
+                )
             lemmatizes[doc_id] = lemmatize_temp
         return lemmatizes
 
