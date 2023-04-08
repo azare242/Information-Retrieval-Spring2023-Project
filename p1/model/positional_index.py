@@ -1,6 +1,3 @@
-from data_set import data_set
-
-
 class postings_list:
     def __init__(self, **kwargs):
         self.term = kwargs['term']
@@ -30,12 +27,11 @@ class positional_index:
         self.data_set = kwargs['data_set']
         self.index = {}
 
-
     def construction(self):
         for doc_id, tokens in zip(self.data_set.processed_tokens.keys(), self.data_set.processed_tokens.values()):
             for pos, term in enumerate(tokens):
                 if term not in self.index.keys():
-                    self.index[term] = postings_list(term)
+                    self.index[term] = postings_list(term=term)
                 _postings_list = self.index[term]
                 if len(_postings_list.postings) != 0 and _postings_list.postings[-1][0] == doc_id:
                     _postings_list.postings[-1][1] += 1
@@ -49,4 +45,3 @@ class positional_index:
 
         else:
             return None
-
