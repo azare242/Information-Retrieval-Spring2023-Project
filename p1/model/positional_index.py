@@ -49,6 +49,11 @@ class positional_index:
                     _postings_list.postings[-1][2].append(pos)
                 else:
                     _postings_list.add(doc_id, 1, [pos])
+        self.sort_index()
+
+    def sort_index(self):
+        temp = sorted(self.index.items())
+        self.index = dict(temp)
 
     def get_postings_by_term(self, term):
         if term in self.index.keys():
