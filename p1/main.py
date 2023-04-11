@@ -10,5 +10,5 @@ if __name__ == '__main__':
     t1 = random.choice(data.processed_tokens)
     t2 = random.choice(t1)
     PositionalIndex = positional_index(data_set=data)
-
-    print(PositionalIndex.get_postings_by_term(t2))
+    for i in range(20):
+        print(PositionalIndex.sample(), end='\n***\n***\n')

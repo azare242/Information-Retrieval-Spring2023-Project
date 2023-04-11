@@ -12,6 +12,15 @@ class postings_list:
                 return p[1]
         return -1
 
+    def string(self):
+        p = self.postings
+        s = f'{self.term}: \n ['
+        for i in range(len(p) - 1):
+            x = p[i]
+            s += f'<<doc_id : {x[0]}, term_frequency : {x[1]}, positions : {x[2]}>> --> '
+        s += f'<<doc_id : {p[-1][0]}, frequency : {p[-1][1]}, positions : {p[-1][2]}>>]\n doc_frequency : {self.doc_frequency()} '
+        return s
+
     def positions(self, doc_id):
         for p in self.postings:
             if p[0] == doc_id:
@@ -19,6 +28,7 @@ class postings_list:
         return None
 
     def add(self, doc_id, term_frequency, positions):
+
         self.postings.append([doc_id, term_frequency, positions])
 
 
@@ -26,6 +36,7 @@ class positional_index:
     def __init__(self, **kwargs):
         self.data_set = kwargs['data_set']
         self.index = {}
+        self.construction()
 
     def construction(self):
         for doc_id, tokens in zip(self.data_set.processed_tokens.keys(), self.data_set.processed_tokens.values()):
@@ -45,3 +56,9 @@ class positional_index:
 
         else:
             return None
+
+    def sample(self):
+        import random
+        terms = list(self.index.keys())
+        rand_term = random.choice(terms)
+        return self.index[rand_term].string()
