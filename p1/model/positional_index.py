@@ -1,35 +1,35 @@
+class posting_node:
+    def __init__(self, **kwargs):
+        self.posting = [kwargs['doc_id'], kwargs['term_freq'], kwargs['positions']]
+        self.next = None
+
+
 class postings_list:
     def __init__(self, **kwargs):
         self.term = kwargs['term']
-        self.postings = []
-
-    def doc_frequency(self):
-        return len(self.postings)
-
-    def term_frequency(self, doc_id):
-        for p in self.postings:
-            if p[0] == doc_id:
-                return p[1]
-        return -1
+        self.doc_frequency = 0
+        self.head = None
+        self.tail = None
 
     def string(self):
-        p = self.postings
+        p = self.head
         s = f'{self.term}: \n ['
-        for i in range(len(p) - 1):
-            x = p[i]
+        while p.next is not None:
+            x = p.posting
             s += f'<<doc_id : {x[0]}, term_frequency : {x[1]}, positions : {x[2]}>> --> '
-        s += f'<<doc_id : {p[-1][0]}, frequency : {p[-1][1]}, positions : {p[-1][2]}>>]\n doc_frequency : {self.doc_frequency()} '
+            p = p.next
+        s += f'<<doc_id : {p.posting[0]}, frequency : {p.posting[1]}, positions : {p.posting[2]}>>]\n doc_frequency : {self.doc_frequency} '
         return s
 
-    def positions(self, doc_id):
-        for p in self.postings:
-            if p[0] == doc_id:
-                return p[2]
-        return None
-
     def add(self, doc_id, term_frequency, positions):
-
-        self.postings.append([doc_id, term_frequency, positions])
+        new_node = posting_node(doc_id=doc_id, term_freq=term_frequency, positions=positions)
+        if self.head is None:
+            self.head = new_node
+            self.tail = new_node
+        else:
+            self.tail.next = new_node
+            self.tail = new_node
+        self.doc_frequency += 1
 
 
 class positional_index:
@@ -44,9 +44,9 @@ class positional_index:
                 if term not in self.index.keys():
                     self.index[term] = postings_list(term=term)
                 _postings_list = self.index[term]
-                if len(_postings_list.postings) != 0 and _postings_list.postings[-1][0] == doc_id:
-                    _postings_list.postings[-1][1] += 1
-                    _postings_list.postings[-1][2].append(pos)
+                if _postings_list.head is not None and _postings_list.tail.posting[0] == doc_id:
+                    _postings_list.tail.posting[1] += 1
+                    _postings_list.tail.posting[2].append(pos)
                 else:
                     _postings_list.add(doc_id, 1, [pos])
         self.sort_index()
@@ -57,7 +57,7 @@ class positional_index:
 
     def get_postings_by_term(self, term):
         if term in self.index.keys():
-            return self.index[term].postings
+            return self.index[term].posting
 
         else:
             return None
