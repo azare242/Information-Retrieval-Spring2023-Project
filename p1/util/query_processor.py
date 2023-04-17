@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from hazm import *
 
 
@@ -11,12 +12,12 @@ class query_processor:
 
     def create_stopwords_list(self):
         li = stopwords_list()
-        special_chars = ['!', '\"', '#', '(', ')', '*', '-', '.', '/', ':', '[', ']', '«', '»', '،', '؛', '؟']
+        special_chars = ['#', '(', ')', '*', '-', '.', '/', ':', '[', ']', '،', '؛', '؟']
         for x in special_chars:
             li.append(x)
         return li
 
-    def proceess(self, query):
+    def process_text(self, query):
         norm = self.normalizer.normalize(query)
         tokens = self.tokenizer.tokenize(norm)
         stems = []
@@ -27,4 +28,31 @@ class query_processor:
         lemms = []
         for stem in stems:
             lemms.append(self.lemmatizer.lemmatize(stem))
-        return lemms
+        n = len(lemms)
+        res = []
+        parentheses_flag = False
+        not_flag = 0
+        new = []
+        for i in range(n):
+            if lemms[i] == '!':
+                not_flag = 1
+            elif lemms[i] == '«':
+                parentheses_flag = True
+            elif lemms[i] == '»':
+                state = 'phrase' if not_flag != 2 else 'not-phrase'
+                parentheses_flag, not_flag = False, 0
+                res.append((new, state))
+                new = []
+            else:
+                if not_flag == 1 and parentheses_flag:
+                    new.append(lemms[i])
+                    not_flag = 2
+                elif parentheses_flag:
+                    new.append(lemms[i])
+                elif not_flag == 1:
+                    res.append(([lemms[i]], 'not'))
+                    not_flag = 0
+                else:
+                    res.append(([lemms[i]], 'none'))
+
+        return res
