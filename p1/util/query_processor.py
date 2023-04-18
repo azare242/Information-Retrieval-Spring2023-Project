@@ -1,14 +1,16 @@
 from __future__ import unicode_literals
 from hazm import *
+from p1.model.positional_index import *
 
 
 class query_processor:
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.normalizer = Normalizer()
         self.tokenizer = WordTokenizer()
         self.stemmer = Stemmer()
         self.lemmatizer = Lemmatizer()
         self.stopwords = self.create_stopwords_list()
+        self.pindex = kwargs['pindex']
 
     def create_stopwords_list(self):
         li = stopwords_list()
@@ -55,4 +57,46 @@ class query_processor:
                 else:
                     res.append(([lemms[i]], 'none'))
 
+        return res
+
+    def find_index(self, term):
+        if term in self.pindex.index.keys():
+            return self.pindex.index[term]
+        return None
+
+    def AND(self, p1, p2):
+
+        res = []
+        i = j = 0
+        while i < len(p1) and j < len(p2):
+            if p1[i] == p2[j]:
+                res.append(p1[i])
+            elif p1[i] < p2[j]:
+                i += 1
+            else:
+                j += 1
+        return res
+
+    def AND_NOT(self, p, p_not):
+        res = []
+        i = j = 0
+        while i < len(p) and j < len(p_not):
+            if p[i] == p_not[j]:
+                i += 1
+                j += 1
+            elif p[i] < p_not[j]:
+                res.append(p[i])
+                i += 1
+            else:
+                j += 1
+        while i < len(p):
+            res.append(p[i])
+            i += 1
+        return res
+
+    def phrase(self, terms: list):
+        res = []
+        """
+        TODO : phrase
+        """
         return res
