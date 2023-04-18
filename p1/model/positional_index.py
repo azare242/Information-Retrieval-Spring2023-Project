@@ -31,6 +31,21 @@ class postings_list:
             self.tail = new_node
         self.doc_frequency += 1
 
+    def get_docid_as_list(self):
+        res = []
+        p = self.head
+        while p is not None:
+            res.append(p.posting[0])
+            p = p.next
+        return res
+
+    def get_docid_positions_as_dict(self):
+        res = {}
+        p = self.head
+        while p is not None:
+            res[p.posting[0]] = p.posting[2]
+            p = p.next
+        return res
 
 class positional_index:
     def __init__(self, **kwargs):
