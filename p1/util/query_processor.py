@@ -4,6 +4,7 @@ from p1.model.positional_index import *
 
 
 
+
 class query_processor:
     def __init__(self, **kwargs):
         self.normalizer = Normalizer()
@@ -99,9 +100,14 @@ class query_processor:
 
     def phrase(self, pp_phrase):
         doc_ids_poss = []
-        for x in pp_phrase[0]:
-            doc_ids_poss.append(self.pindex.index[x])
-
+        for x in pp_phrase:
+            print(x)
+            doc_ids_poss.append(self.pindex.index[x].get_docid_positions_as_dict())
+        doc_ids = [sorted(list(y.keys())) for y in doc_ids_poss]
+        current = doc_ids[0]
+        for i in range(1, len(doc_ids)):
+            current = self.AND(current, doc_ids[i])
+        return current
 
     def operate(self, _curr, _next, mode):
         if mode == 'none':
@@ -113,8 +119,8 @@ class query_processor:
         res = []
         for x in pp_text:
             if 'phrase' in x[1]:
-                #TODO : phrase
-                pass
+                y = self.phrase(x[0])
+                res.append((y, 'not' if 'not' in x[1] else 'none'))
             else:
                 res.append((self.pindex.index[x[0][0]].get_docid_as_list(), x[1]))
         return res
