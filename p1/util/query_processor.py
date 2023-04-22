@@ -3,6 +3,7 @@ from hazm import *
 from p1.model.positional_index import *
 
 
+
 class query_processor:
     def __init__(self, **kwargs):
         self.normalizer = Normalizer()
@@ -31,6 +32,10 @@ class query_processor:
         for stem in stems:
             lemms.append(self.lemmatizer.lemmatize(stem))
         n = len(lemms)
+        # check if word is not in data set
+        # for x in lemms:
+        #     if not x in self.pindex.index.keys():
+        #         raise Error('CAN NOT PROCESS QUERY')
         res = []
         parentheses_flag = False
         not_flag = 0
@@ -59,10 +64,6 @@ class query_processor:
 
         return res
 
-    def find_index(self, term):
-        if term in self.pindex.index.keys():
-            return self.pindex.index[term]
-        return None
 
     def AND(self, p1, p2):
 
@@ -71,6 +72,8 @@ class query_processor:
         while i < len(p1) and j < len(p2):
             if p1[i] == p2[j]:
                 res.append(p1[i])
+                i += 1
+                j += 1
             elif p1[i] < p2[j]:
                 i += 1
             else:
@@ -94,9 +97,33 @@ class query_processor:
             i += 1
         return res
 
-    def phrase(self, terms: list):
+    def phrase(self, pp_phrase):
+        doc_ids_poss = []
+        for x in pp_phrase[0]:
+            doc_ids_poss.append(self.pindex.index[x])
+
+
+    def operate(self, _curr, _next, mode):
+        if mode == 'none':
+            return self.AND(_curr, _next)
+        elif 'not' in mode:
+            return self.AND_NOT(_curr, _next)
+
+    def find_terms(self, pp_text):
         res = []
-        """
-        TODO : phrase
-        """
+        for x in pp_text:
+            if 'phrase' in x[1]:
+                #TODO : phrase
+                pass
+            else:
+                res.append((self.pindex.index[x[0][0]].get_docid_as_list(), x[1]))
         return res
+
+
+    def answer(self, query):
+        pp_text = self.process_text(query)
+        terms = self.find_terms(pp_text)
+        current = terms[0][0]
+        for i in range(1, len(terms)):
+            current = self.operate(current, terms[i][0], terms[i][1])
+        return current
