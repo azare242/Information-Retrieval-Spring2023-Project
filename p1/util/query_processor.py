@@ -5,6 +5,8 @@ from p1.model.positional_index import *
 
 
 
+
+
 class query_processor:
     def __init__(self, **kwargs):
         self.normalizer = Normalizer()
@@ -33,10 +35,6 @@ class query_processor:
         for stem in stems:
             lemms.append(self.lemmatizer.lemmatize(stem))
         n = len(lemms)
-        # check if word is not in data set
-        # for x in lemms:
-        #     if not x in self.pindex.index.keys():
-        #         raise Error('CAN NOT PROCESS QUERY')
         res = []
         parentheses_flag = False
         not_flag = 0
@@ -52,6 +50,8 @@ class query_processor:
                 res.append((new, state))
                 new = []
             else:
+
+
                 if not_flag == 1 and parentheses_flag:
                     new.append(lemms[i])
                     not_flag = 2
@@ -63,6 +63,13 @@ class query_processor:
                 else:
                     res.append(([lemms[i]], 'none'))
 
+
+        for x in res:
+            for y in x[0]:
+                if not y in self.pindex.index.keys():
+                    x[0].remove(y)
+            if len(x[0]) == 0:
+                res.remove(x)
         return res
 
 
@@ -101,7 +108,6 @@ class query_processor:
     def phrase(self, pp_phrase):
         doc_ids_poss = []
         for x in pp_phrase:
-            print(x)
             doc_ids_poss.append(self.pindex.index[x].get_docid_positions_as_dict())
         doc_ids = [sorted(list(y.keys())) for y in doc_ids_poss]
         current = doc_ids[0]
