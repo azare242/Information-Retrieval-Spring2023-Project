@@ -1,6 +1,6 @@
 class posting_node:
     def __init__(self, **kwargs):
-        self.posting = [kwargs['doc_id'], kwargs['term_freq'], kwargs['positions']]
+        self.posting = [kwargs['doc_id'], kwargs['term_freq'], kwargs['positions'], 0]
         self.next = None
 
 
@@ -47,9 +47,19 @@ class postings_list:
             p = p.next
         return res
 
+    def tfidf(self):
+        p = self.head
+        res = []
+        while p is not None:
+            res.append(f'{self.doc_frequency} : {p.posting[1]} -> {p.posting[3]}')
+            p = p.next
+        return res
+
+
 class positional_index:
     def __init__(self, **kwargs):
         self.data_set = kwargs['data_set']
+        self.N = self.data_set.N()
         self.index = {}
         self.construction()
 
@@ -65,6 +75,17 @@ class positional_index:
                 else:
                     _postings_list.add(doc_id, 1, [pos])
         self.sort_index()
+        self.compute_tfidf()
+
+    def compute_tfidf(self):
+        from math import log10
+        for term, poslist in zip(self.index.keys(), self.index.values()):
+            idf = log10(self.N / poslist.doc_frequency)
+            t = poslist.head
+            while t is not None:
+                tf = 1 + log10(t.posting[1])
+                t.posting[3] = tf * idf
+                t = t.next
 
     def sort_index(self):
         temp = sorted(self.index.items())
