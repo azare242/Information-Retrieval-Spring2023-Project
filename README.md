@@ -18,6 +18,8 @@ The search engine will prompt you to enter your query. Queries should be formatt
 - AND (e.g., "word1 word2")
 - NOT (e.g., "! word1")
 - Phrase (e.g., word1 ' '/ ! "phrse")
+
+
 The search engine will then return the documents that match the query.
 
 ## Phase 1
