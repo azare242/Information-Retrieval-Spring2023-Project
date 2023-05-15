@@ -21,6 +21,6 @@ The search engine will prompt you to enter your query. Queries should be formatt
 The search engine will then return the documents that match the query.
 
 ## Phase 1
-Using Positional Index For Book Retrieval
+Using Positional Index For Bool Retrieval
 ## Phase 2
 Using Vector Space Model and TFIDF for Rank Retrieval
