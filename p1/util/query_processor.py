@@ -182,9 +182,9 @@ class vector_space_model_qp(query_processor):
         for i in range(len(docs_tfidfs)):
             docid = docs_tfidfs[i][0]
             S = sum(docs_tfidfs[i][-1])
-            doc_vector_length = 1
-            res.append(S / (query_length * doc_vector_length))
-        return sorted(res)[::-1][:10]
+            doc_vector_length = self.pindex.get_doc_vector_length(docid)
+            res.append((docid, S / (query_length * doc_vector_length)))
+        return [x for x in sorted(res, key=lambda key: key[1])[::-1][:10]]
 
     def jacquard_coefficient(self, query_terms):
         pass

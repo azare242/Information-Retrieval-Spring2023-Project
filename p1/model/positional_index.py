@@ -12,6 +12,14 @@ class postings_list:
         self.tail = None
         self.champion = None
 
+    def get_tfidf_by_docid(self, docid):
+        p = self.head
+        while p is not None:
+            if p.posting[0] == docid:
+                return p.posting[-1]
+            p = p.next
+        return 0
+
     def string(self):
         p = self.head
         s = f'{self.term}: \n ['
@@ -91,12 +99,12 @@ class positional_index:
         self.compute_tfidf()
 
     def compute_tfidf(self):
-        from math import log2 as log
+        from math import log10
         for term, poslist in zip(self.index.keys(), self.index.values()):
-            idf = log(self.N / poslist.doc_frequency)
+            idf = log10(self.N / poslist.doc_frequency)
             t = poslist.head
             while t is not None:
-                tf = 1 + log(t.posting[1])
+                tf = 1 + log10(t.posting[1])
                 t.posting[3] = tf * idf
                 t = t.next
             poslist.construct_champion_list()
@@ -111,6 +119,13 @@ class positional_index:
 
         else:
             return None
+
+    def get_doc_vector_length(self, doc_id):
+        res = 0
+        for term in self.index.keys():
+            tfidf = self.index[term].get_tfidf_by_docid(doc_id)
+            res += tfidf ** 2
+        return res ** 0.5
 
     def sample(self):
         import random
