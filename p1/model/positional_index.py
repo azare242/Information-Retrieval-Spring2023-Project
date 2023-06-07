@@ -10,6 +10,7 @@ class postings_list:
         self.doc_frequency = 0
         self.head = None
         self.tail = None
+        self.champion = None
 
     def string(self):
         p = self.head
@@ -47,13 +48,17 @@ class postings_list:
             p = p.next
         return res
 
-    def tfidf(self):
+    def construct_champion_list(self):
         p = self.head
-        res = []
+        tmp_ = []
         while p is not None:
-            res.append(f'{self.doc_frequency} : {p.posting[1]} -> {p.posting[3]}')
+            tmp_.append((p.posting[0], p.posting[-1]))
             p = p.next
-        return res
+        __doc_ids = [__x[0] for __x in sorted(tmp_, key=lambda __x: __x[1])]
+        if len(__doc_ids) < 10:
+            self.champion = __doc_ids[::-1]
+        else:
+            self.champion = __doc_ids[::-1][:10]
 
 
 class positional_index:
@@ -86,6 +91,7 @@ class positional_index:
                 tf = 1 + log10(t.posting[1])
                 t.posting[3] = tf * idf
                 t = t.next
+            poslist.construct_champion_list()
 
     def sort_index(self):
         temp = sorted(self.index.items())
