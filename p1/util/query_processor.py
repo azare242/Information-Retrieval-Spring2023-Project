@@ -132,7 +132,6 @@ class query_processor:
             current = self.operate(current, terms[i][0], terms[i][1])
         return current
 
-
 class vector_space_model_qp(query_processor):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -167,31 +166,34 @@ class vector_space_model_qp(query_processor):
                 j += 1
         return res
 
-    def find_docids(self, query_terms):
-        current_docids = self.pindex.index[query_terms[0]].get_docid_tfidf_as_list()
-        for i in range(1, len(query_terms)):
-            next_query_term = query_terms[i]
-            next_docids = self.pindex.index[next_query_term].get_docid_tfidf_as_list()
-            current_docids = self.AND(current_docids, next_docids)
-        return current_docids
+    def find_docids(self, query_terms, mode):
+        if mode.lower() == 'n':
+            current_docids = self.pindex.index[query_terms[0]].get_docid_tfidf_as_list()
+            for i in range(1, len(query_terms)):
+                next_query_term = query_terms[i]
+                next_docids = self.pindex.index[next_query_term].get_docid_tfidf_as_list()
+                current_docids = self.AND(current_docids, next_docids)
+            return current_docids
+        else:
+            pass
 
-    def cosine_similarity(self, query_terms):
+    def cosine_similarity(self, query_terms, mode):
         query_length = len(query_terms) ** 0.5
-        docs_tfidfs = self.find_docids(query_terms)
+        docs_tfidfs = self.find_docids(query_terms, mode)
         res = []
         for i in range(len(docs_tfidfs)):
             docid = docs_tfidfs[i][0]
             S = sum(docs_tfidfs[i][-1])
             doc_vector_length = self.pindex.get_doc_vector_length(docid)
             res.append((docid, S / (query_length * doc_vector_length)))
-        return [x for x in sorted(res, key=lambda key: key[1])[::-1][:10]]
+        return [x for x in sorted(res, key= lambda key: key[1])[::-1][:10]]
 
-    def jacquard_coefficient(self, query_terms):
+    def jacquard_coefficient(self, query_terms, mode):
         pass
 
     def answer(self, query):
         t = 0
-        if len(query) != 2:
+        if len(query) > 2:
             print('type needed')
             return
         else:
@@ -203,6 +205,6 @@ class vector_space_model_qp(query_processor):
                 print('invalid type')
         qt = self.process_text(query[0])
         if t == 0:
-            return self.cosine_similarity(qt)
+            return self.cosine_similarity(qt, mode=query[2])
         else:
-            return self.jacquard_coefficient(qt)
+            return self.jacquard_coefficient(qt, mode=query[2])

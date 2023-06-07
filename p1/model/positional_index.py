@@ -14,11 +14,13 @@ class postings_list:
 
     def get_tfidf_by_docid(self, docid):
         p = self.head
+        res = 0
         while p is not None:
             if p.posting[0] == docid:
-                return p.posting[-1]
+                res = p.posting[-1]
+                break
             p = p.next
-        return 0
+        return res
 
     def string(self):
         p = self.head
@@ -48,13 +50,21 @@ class postings_list:
             p = p.next
         return res
 
-    def get_docid_tfidf_as_list(self):
-        res = []
-        p = self.head
-        while p is not None:
-            res.append([p.posting[0], [p.posting[-1]]])
-            p = p.next
-        return res
+    def get_docid_tfidf_as_list(self, mode=None):
+        if mode is None:
+            res = []
+            p = self.head
+            while p is not None:
+                res.append([p.posting[0], [p.posting[-1]]])
+                p = p.next
+            return res
+        else:
+
+            res = []
+            for p in self.champion:
+                print(p.posting[0])
+                res.append([p.posting[0], [p.posting[-1]]])
+            return res
 
     def get_docid_positions_as_dict(self):
         res = {}
@@ -68,13 +78,13 @@ class postings_list:
         p = self.head
         tmp_ = []
         while p is not None:
-            tmp_.append((p.posting[0], p.posting[-1]))
+            tmp_.append((p, p.posting[-1]))
             p = p.next
-        __doc_ids = [__x[0] for __x in sorted(tmp_, key=lambda __x: __x[1])]
-        if len(__doc_ids) < 10:
-            self.champion = __doc_ids[::-1]
+        ps = [__x[0] for __x in sorted(tmp_, key=lambda __x: __x[1])]
+        if len(ps) < 50:
+            self.champion = ps[::-1]
         else:
-            self.champion = __doc_ids[::-1][:10]
+            self.champion = ps[::-1][:50]
 
 
 class positional_index:
@@ -83,6 +93,7 @@ class positional_index:
         self.N = self.data_set.N()
         self.index = {}
         self.construction()
+
 
     def construction(self):
         for doc_id, tokens in zip(self.data_set.processed_tokens.keys(), self.data_set.processed_tokens.values()):
@@ -120,7 +131,7 @@ class positional_index:
         else:
             return None
 
-    def get_doc_vector_length(self, doc_id):
+    def get_doc_vector_length(self,doc_id):
         res = 0
         for term in self.index.keys():
             tfidf = self.index[term].get_tfidf_by_docid(doc_id)
