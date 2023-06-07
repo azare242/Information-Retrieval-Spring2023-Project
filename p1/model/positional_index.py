@@ -40,6 +40,14 @@ class postings_list:
             p = p.next
         return res
 
+    def get_docid_tf_as_list(self):
+        res = []
+        p = self.head
+        while p is not None:
+            res.append([p.posting[0], [p.posting[-1]]])
+            p = p.next
+        return res
+
     def get_docid_positions_as_dict(self):
         res = {}
         p = self.head

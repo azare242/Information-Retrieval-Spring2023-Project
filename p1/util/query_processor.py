@@ -3,10 +3,6 @@ from hazm import *
 from p1.model.positional_index import *
 
 
-
-
-
-
 class query_processor:
     def __init__(self, **kwargs):
         self.normalizer = Normalizer()
@@ -51,7 +47,6 @@ class query_processor:
                 new = []
             else:
 
-
                 if not_flag == 1 and parentheses_flag:
                     new.append(lemms[i])
                     not_flag = 2
@@ -63,7 +58,6 @@ class query_processor:
                 else:
                     res.append(([lemms[i]], 'none'))
 
-
         for x in res:
             for y in x[0]:
                 if not y in self.pindex.index.keys():
@@ -71,7 +65,6 @@ class query_processor:
             if len(x[0]) == 0:
                 res.remove(x)
         return res
-
 
     def AND(self, p1, p2):
 
@@ -131,7 +124,6 @@ class query_processor:
                 res.append((self.pindex.index[x[0][0]].get_docid_as_list(), x[1]))
         return res
 
-
     def answer(self, query):
         pp_text = self.process_text(query)
         terms = self.find_terms(pp_text)
@@ -139,3 +131,70 @@ class query_processor:
         for i in range(1, len(terms)):
             current = self.operate(current, terms[i][0], terms[i][1])
         return current
+
+
+class vector_space_model_qp(query_processor):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def process_text(self, query):
+        norm = self.normalizer.normalize(query)
+        tokens = self.tokenizer.tokenize(norm)
+        stems = []
+        for token in tokens:
+            temp_stem = self.stemmer.stem(token)
+            if temp_stem not in self.stopwords:
+                stems.append(temp_stem)
+
+        lemms = []
+        for stem in stems:
+            lemms.append(self.lemmatizer.lemmatize(stem))
+        return lemms
+
+    def AND(self, p1, p2):
+
+        res = []
+        i = j = 0
+        while i < len(p1) and j < len(p2):
+            if p1[i][0] == p2[j][0]:
+                res.append(p1[i])
+                res[-1][-1].append(p2[i][-1][0])
+                i += 1
+                j += 1
+            elif p1[i][0] < p2[j][0]:
+                i += 1
+            else:
+                j += 1
+        return res
+
+    def find_docids(self, query_terms):
+        current_docids = self.pindex.index[query_terms[0]].get_docid_tf_as_list()
+        for i in range(1, len(query_terms)):
+            next_query_term = query_terms[i]
+            next_docids = self.pindex.index[next_query_term].get_docid_tf_as_list()
+            current_docids = self.AND(current_docids, next_docids)
+        return current_docids
+
+    def cosine_similarity(self, query_terms):
+        pass
+
+    def jacquard_coefficient(self, query_terms):
+        pass
+
+    def answer(self, query):
+        t = 0
+        if len(query) != 2:
+            print('type needed')
+            return
+        else:
+            if query[1] == 'cos':
+                t = 0
+            elif query[1].upper() == 'J':
+                t = 1
+            else:
+                print('invalid type')
+        qt = self.process_text(query[0])
+        if t == 0:
+            return self.cosine_similarity(qt)
+        else:
+            return self.jacquard_coefficient(qt)
