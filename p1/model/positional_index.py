@@ -40,7 +40,7 @@ class postings_list:
             p = p.next
         return res
 
-    def get_docid_tf_as_list(self):
+    def get_docid_tfidf_as_list(self):
         res = []
         p = self.head
         while p is not None:
