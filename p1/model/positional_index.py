@@ -83,12 +83,12 @@ class positional_index:
         self.compute_tfidf()
 
     def compute_tfidf(self):
-        from math import log10
+        from math import log2 as log
         for term, poslist in zip(self.index.keys(), self.index.values()):
-            idf = log10(self.N / poslist.doc_frequency)
+            idf = log(self.N / poslist.doc_frequency)
             t = poslist.head
             while t is not None:
-                tf = 1 + log10(t.posting[1])
+                tf = 1 + log(t.posting[1])
                 t.posting[3] = tf * idf
                 t = t.next
             poslist.construct_champion_list()
