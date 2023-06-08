@@ -12,16 +12,6 @@ class postings_list:
         self.tail = None
         self.champion = None
 
-    def get_tfidf_by_docid(self, docid):
-        p = self.head
-        res = 0
-        while p is not None:
-            if p.posting[0] == docid:
-                res = p.posting[-1]
-                break
-            p = p.next
-        return res
-
     def string(self):
         p = self.head
         s = f'{self.term}: \n ['
@@ -42,6 +32,14 @@ class postings_list:
             self.tail = new_node
         self.doc_frequency += 1
 
+    def get_docid_tfidf_as_list(self, mode=None):
+        res = []
+        p = self.head
+        while p is not None:
+            res.append([p.posting[0], [p.posting[-1]]])
+            p = p.next
+        return res
+
     def get_docid_as_list(self):
         res = []
         p = self.head
@@ -49,22 +47,6 @@ class postings_list:
             res.append(p.posting[0])
             p = p.next
         return res
-
-    def get_docid_tfidf_as_list(self, mode=None):
-        if mode is None:
-            res = []
-            p = self.head
-            while p is not None:
-                res.append([p.posting[0], [p.posting[-1]]])
-                p = p.next
-            return res
-        else:
-
-            res = []
-            for p in self.champion:
-                print(p.posting[0])
-                res.append([p.posting[0], [p.posting[-1]]])
-            return res
 
     def get_docid_positions_as_dict(self):
         res = {}
@@ -92,8 +74,8 @@ class positional_index:
         self.data_set = kwargs['data_set']
         self.N = self.data_set.N()
         self.index = {}
+        self.vector_sizes = {}
         self.construction()
-
 
     def construction(self):
         for doc_id, tokens in zip(self.data_set.processed_tokens.keys(), self.data_set.processed_tokens.values()):
@@ -111,14 +93,25 @@ class positional_index:
 
     def compute_tfidf(self):
         from math import log10
+        vect = {}
         for term, poslist in zip(self.index.keys(), self.index.values()):
             idf = log10(self.N / poslist.doc_frequency)
             t = poslist.head
             while t is not None:
                 tf = 1 + log10(t.posting[1])
-                t.posting[3] = tf * idf
+                tfidf = tf * idf
+                t.posting[3] = tfidf
+                if t.posting[0] not in vect.keys():
+                    vect[t.posting[0]] = [tfidf]
+                else:
+                    vect[t.posting[0]].append(tfidf)
                 t = t.next
             poslist.construct_champion_list()
+        for docid in vect.keys():
+            size = 0
+            for e in vect[docid]:
+                size += e ** 2
+            self.vector_sizes[docid] = size ** 0.5
 
     def sort_index(self):
         temp = sorted(self.index.items())
@@ -130,13 +123,6 @@ class positional_index:
 
         else:
             return None
-
-    def get_doc_vector_length(self,doc_id):
-        res = 0
-        for term in self.index.keys():
-            tfidf = self.index[term].get_tfidf_by_docid(doc_id)
-            res += tfidf ** 2
-        return res ** 0.5
 
     def sample(self):
         import random

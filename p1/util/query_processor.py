@@ -132,6 +132,7 @@ class query_processor:
             current = self.operate(current, terms[i][0], terms[i][1])
         return current
 
+
 class vector_space_model_qp(query_processor):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -184,9 +185,9 @@ class vector_space_model_qp(query_processor):
         for i in range(len(docs_tfidfs)):
             docid = docs_tfidfs[i][0]
             S = sum(docs_tfidfs[i][-1])
-            doc_vector_length = self.pindex.get_doc_vector_length(docid)
+            doc_vector_length = self.pindex.vector_sizes[docid]
             res.append((docid, S / (query_length * doc_vector_length)))
-        return [x for x in sorted(res, key= lambda key: key[1])[::-1][:10]]
+        return [x for x in sorted(res, key=lambda key: key[1])[::-1][:10]]
 
     def jacquard_coefficient(self, query_terms, mode):
         pass
