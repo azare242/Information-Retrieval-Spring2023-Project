@@ -158,7 +158,7 @@ class vector_space_model_qp(query_processor):
         while i < len(p1) and j < len(p2):
             if p1[i][0] == p2[j][0]:
                 res.append(p1[i])
-                res[-1][-1].append(p2[i][-1][0])
+                res[-1][-1].append(p2[j][-1][0])
                 i += 1
                 j += 1
             elif p1[i][0] < p2[j][0]:
