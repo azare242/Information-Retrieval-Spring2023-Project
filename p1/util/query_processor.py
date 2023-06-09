@@ -158,6 +158,7 @@ class vector_space_model_qp(query_processor):
         while i < len(p1) and j < len(p2):
             if p1[i][0] == p2[j][0]:
                 res.append(p1[i])
+
                 res[-1][-1].append(p2[j][-1][0])
                 i += 1
                 j += 1
@@ -168,7 +169,7 @@ class vector_space_model_qp(query_processor):
         return res
 
     def find_docids(self, query_terms, mode):
-        if mode.lower() == 'n':
+        if mode.lower() == 'cos':
             current_docids = self.pindex.index[query_terms[0]].get_docid_tfidf_as_list()
             for i in range(1, len(query_terms)):
                 next_query_term = query_terms[i]
@@ -176,7 +177,12 @@ class vector_space_model_qp(query_processor):
                 current_docids = self.AND(current_docids, next_docids)
             return current_docids
         else:
-            pass
+            current_docids = self.pindex.index[query_terms[0]].get_docid_termfreq_as_list()
+            for i in range(1, len(query_terms)):
+                next_query_term = query_terms[i]
+                next_docids = self.pindex.index[next_query_term].get_docid_termfreq_as_list()
+                current_docids = self.AND(current_docids, next_docids)
+            return current_docids
 
     def cosine_similarity(self, query_terms, mode):
         query_length = len(query_terms) ** 0.5
@@ -190,7 +196,14 @@ class vector_space_model_qp(query_processor):
         return [x for x in sorted(res, key=lambda key: key[1])[::-1][:10]]
 
     def jacquard_coefficient(self, query_terms, mode):
-        pass
+        doc_termfreqs = self.find_docids(query_terms, mode)
+        res = []
+        for i in range(len(doc_termfreqs)):
+            docid = doc_termfreqs[i][0]
+            S = sum(doc_termfreqs[i][-1])
+            doc_J = self.pindex.doc_jacquard[docid]
+            res.append((docid, S / doc_J))
+        return [x for x in sorted(res, key=lambda key: key[1])][::-1][:10]
 
     def answer(self, query):
         t = 0

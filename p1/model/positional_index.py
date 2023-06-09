@@ -40,6 +40,14 @@ class postings_list:
             p = p.next
         return res
 
+    def get_docid_termfreq_as_list(self):
+        res = []
+        p = self.head
+        while p is not None:
+            res.append([p.posting[0], [p.posting[1]]])
+            p = p.next
+        return res
+
     def get_docid_as_list(self):
         res = []
         p = self.head
@@ -74,6 +82,7 @@ class positional_index:
         self.data_set = kwargs['data_set']
         self.N = self.data_set.N()
         self.index = {}
+        self.doc_jacquard = {}
         self.vector_sizes = {}
         self.construction()
 
@@ -105,6 +114,11 @@ class positional_index:
                     vect[t.posting[0]] = [tfidf]
                 else:
                     vect[t.posting[0]].append(tfidf)
+
+                if t.posting[0] not in self.doc_jacquard.keys():
+                    self.doc_jacquard[t.posting[0]] = t.posting[1]
+                else:
+                    self.doc_jacquard[t.posting[0]] += t.posting[1]
                 t = t.next
             poslist.construct_champion_list()
         for docid in vect.keys():
