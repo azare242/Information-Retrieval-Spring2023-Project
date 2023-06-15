@@ -18,8 +18,9 @@ The search engine will prompt you to enter your query. Queries should be formatt
 - AND (e.g., "word1 word2")
 - NOT (e.g., "! word1")
 - Phrase (e.g., word1 ' '/ ! "phrse")
+- Ranked Retrieval (e.g., word1 word2 ... wordn, 'cos' or 'J', 'n' or 'chmp')
 
--For Ranked Retrieval (e.g., word1 word2 ... wordn, 'cos' or 'J', 'n' or 'chmp')
+
 The search engine will then return the documents that match the query.
 
 ## Phase 1
