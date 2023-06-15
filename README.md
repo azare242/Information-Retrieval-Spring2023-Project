@@ -1,6 +1,6 @@
 # Persian Search Engine
 
-This is a search engine project for the Persian language, implemented in Python using the Hazm library. Currently, it only supports boolean queries.
+This is a search engine project for the Persian language, implemented in Python using the Hazm library. Currently, it only supports boolean queries and raw-text queris for ranked retrieval.
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ The search engine will prompt you to enter your query. Queries should be formatt
 - NOT (e.g., "! word1")
 - Phrase (e.g., word1 ' '/ ! "phrse")
 
-
+-For Ranked Retrieval (e.g., word1 word2 ... wordn, 'cos' or 'J', 'n' or 'chmp')
 The search engine will then return the documents that match the query.
 
 ## Phase 1
